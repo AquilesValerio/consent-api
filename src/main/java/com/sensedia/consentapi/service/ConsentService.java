@@ -9,7 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import java.util.Optional;
 
 public interface ConsentService {
-    ConsentResponseDTO create(ConsentRequestDTO request,String idempotencyKey);
+    IdempotentResult create(ConsentRequestDTO request,String idempotencyKey);
     Page<ConsentResponseDTO> findAllPaged(PageRequest pageRequest);
     Optional<ConsentResponseDTO> findById(String id);
     void deleteById(String id);

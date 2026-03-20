@@ -4,6 +4,7 @@ import com.sensedia.consentapi.service.ConsentService;
 import com.sensedia.consentapi.dto.ConsentRequestDTO;
 import com.sensedia.consentapi.dto.ConsentResponseDTO;
 import com.sensedia.consentapi.dto.ConsentUpdateDTO;
+import com.sensedia.consentapi.service.IdempotentResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,10 +28,15 @@ public class ConsentController {
     public ResponseEntity<ConsentResponseDTO> create(@RequestHeader("x-idempotency-key") String idempotencyKey,
             @Valid @RequestBody ConsentRequestDTO requestDTO){
 
-        ConsentResponseDTO response = service.create(requestDTO,idempotencyKey);
+        IdempotentResult response = service.create(requestDTO,idempotencyKey);
+
+        if(!response.created()){
+            return ResponseEntity.ok().body(response.data());
+        }
+
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(response.id()).toUri();
-        return ResponseEntity.created(uri).body(response);
+                .buildAndExpand(response.data().id()).toUri();
+        return ResponseEntity.created(uri).body(response.data());
     }
 
     @GetMapping

@@ -24,11 +24,11 @@ public class ConsentServiceImpl implements ConsentService {
     private final ConsentMapper consentMapper;
 
     @Override
-    public ConsentResponseDTO create(ConsentRequestDTO request, String idempotencyKey) {
+    public IdempotentResult create(ConsentRequestDTO request, String idempotencyKey) {
         var result = repository.findByIdempotencyKey(idempotencyKey);
 
         if (result.isPresent()) {
-            return consentMapper.entityToDto(result.get());
+            return new IdempotentResult(consentMapper.entityToDto(result.get()),false);
         }
 
         Consent entity = consentMapper.dtoToEntity(request);
@@ -36,7 +36,8 @@ public class ConsentServiceImpl implements ConsentService {
         entity.setCreationDateTime(LocalDateTime.now());
         entity.setIdempotencyKey(idempotencyKey);
         entity = repository.save(entity);
-        return consentMapper.entityToDto(entity);
+
+        return new IdempotentResult (consentMapper.entityToDto(entity),true);
     }
 
     @Override
