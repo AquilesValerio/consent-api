@@ -1,4 +1,4 @@
-package com.sensedia.consentapi.domain.service;
+package com.sensedia.consentapi.service;
 
 import com.sensedia.consentapi.dto.ConsentRequestDTO;
 import com.sensedia.consentapi.dto.ConsentResponseDTO;
