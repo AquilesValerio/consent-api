@@ -77,10 +77,12 @@ class ConsentServiceImplTest {
         when(repository.save(any())).thenReturn(consent);
         when(consentMapper.entityToDto(consent)).thenReturn(responseDTO);
 
-        var result = service.create(request, idempotencyKey);
+        IdempotentResult result = service.create(request, idempotencyKey);
 
+        // Verifica que foi criação nova
         assertThat(result).isNotNull();
-        assertThat(result.cpf()).isEqualTo("529.982.247-25");
+        assertThat(result.created()).isTrue();
+        assertThat(result.data().cpf()).isEqualTo("529.982.247-25");
         verify(repository).save(any());
     }
 
@@ -90,10 +92,12 @@ class ConsentServiceImplTest {
         when(repository.findByIdempotencyKey(idempotencyKey)).thenReturn(Optional.of(consent));
         when(consentMapper.entityToDto(consent)).thenReturn(responseDTO);
 
-        var result = service.create(request, idempotencyKey);
+        IdempotentResult result = service.create(request, idempotencyKey);
 
+        // Verifica que foi idempotência
         assertThat(result).isNotNull();
-        assertThat(result.id()).isEqualTo(consent.getId());
+        assertThat(result.created()).isFalse();
+        assertThat(result.data().id()).isEqualTo(consent.getId());
         verify(repository, never()).save(any());
     }
 
